@@ -1,869 +1,1121 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Simulación de laboratorio virtual - Extracción de ADN de células de cebolla. BIOL 1104 Lab #6.">
+    <meta name="description"
+        content="Simulación de laboratorio virtual - Extracción de ADN de células de cebolla. BIOL 1104 Lab #6.">
     <title>Lab #6 — Extracción de ADN | BIOL 1104</title>
     <style>
-/* ============================================
+        /* ============================================
    BIOL 1104 Lab #6 — DNA Extraction Simulation
    LabXchange-inspired dark theme
    ============================================ */
 
-/* Reset & Globals */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-    /* Brand Colors */
-    --navy-900: #0a1628;
-    --navy-800: #0f1f3d;
-    --navy-700: #152a4e;
-    --navy-600: #1b3664;
-    --blue-500: #2196F3;
-    --blue-400: #42a5f5;
-    --blue-300: #64b5f6;
-    --teal-500: #00bcd4;
-    --teal-400: #26c6da;
-    --amber-500: #ff9800;
-    --amber-400: #ffa726;
-    --green-500: #4caf50;
-    --green-400: #66bb6a;
-    --red-500: #ef5350;
-    --white: #ffffff;
-    --gray-100: #f5f5f5;
-    --gray-200: #eeeeee;
-    --gray-300: #e0e0e0;
-    --gray-400: #bdbdbd;
-    --gray-500: #9e9e9e;
-    --gray-600: #757575;
-    --gray-700: #616161;
-    --gray-800: #424242;
-
-    /* Layout */
-    --topbar-h: 48px;
-    --notebook-w: 38%;
-    --workspace-w: 62%;
-
-    /* Transitions */
-    --ease: cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* Shadows */
-    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-    /* Radii */
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-}
-
-html, body {
-    height: 100%;
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: var(--navy-900);
-    color: var(--white);
-    overflow: hidden;
-    -webkit-font-smoothing: antialiased;
-}
-
-/* ========== TOP BAR ========== */
-#topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: var(--topbar-h);
-    background: var(--navy-800);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    z-index: 100;
-    backdrop-filter: blur(12px);
-}
-
-#btn-back {
-    background: none;
-    border: none;
-    color: var(--gray-400);
-    font-size: 22px;
-    cursor: pointer;
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s var(--ease);
-}
-#btn-back:hover { background: rgba(255,255,255,0.08); color: var(--white); }
-
-#topbar-title {
-    font-weight: 600;
-    font-size: 14px;
-    margin-left: 8px;
-    letter-spacing: 0.3px;
-}
-
-#topbar-brand {
-    margin-left: auto;
-    font-size: 12px;
-    color: var(--gray-500);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-/* ========== SCREENS ========== */
-.screen {
-    position: fixed;
-    top: var(--topbar-h);
-    left: 0; right: 0; bottom: 0;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s var(--ease);
-}
-.screen.active { opacity: 1; pointer-events: all; }
-
-/* ========== WELCOME / COMPLETION SCREEN ========== */
-.welcome-container {
-    width: 100%; height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        radial-gradient(ellipse at 30% 20%, rgba(33, 150, 243, 0.12) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 80%, rgba(0, 188, 212, 0.08) 0%, transparent 60%),
-        var(--navy-900);
-    padding: 32px;
-}
-
-.welcome-card {
-    text-align: center;
-    max-width: 560px;
-    padding: 56px 48px;
-    background: linear-gradient(145deg, rgba(15, 31, 61, 0.9), rgba(10, 22, 40, 0.95));
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-    animation: cardAppear 0.7s var(--ease) both;
-}
-
-@keyframes cardAppear {
-    from { opacity: 0; transform: translateY(24px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.welcome-icon {
-    font-size: 56px;
-    margin-bottom: 20px;
-    animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-}
-
-.welcome-card h1 {
-    font-size: 28px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--blue-300), var(--teal-400));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-}
-
-.welcome-card h2 {
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--gray-300);
-    margin-bottom: 8px;
-}
-
-.welcome-subtitle {
-    font-size: 13px;
-    color: var(--gray-500);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 24px;
-}
-
-.welcome-desc {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--gray-400);
-    margin-bottom: 32px;
-}
-
-/* Buttons */
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 32px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--white);
-    background: linear-gradient(135deg, var(--blue-500), var(--teal-500));
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.3s var(--ease);
-    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
-    letter-spacing: 0.3px;
-}
-
-.btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 28px rgba(33, 150, 243, 0.45);
-}
-
-.btn-primary:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-.btn-glow {
-    animation: btnGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes btnGlow {
-    from { box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3); }
-    to { box-shadow: 0 4px 30px rgba(33, 150, 243, 0.55); }
-}
-
-.btn-icon { font-size: 16px; }
-.btn-arrow { font-size: 18px; font-weight: 400; }
-
-/* Secondary Button */
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 20px;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--blue-300);
-    background: rgba(33, 150, 243, 0.1);
-    border: 1px solid rgba(33, 150, 243, 0.25);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.25s var(--ease);
-}
-.btn-secondary:hover {
-    background: rgba(33, 150, 243, 0.2);
-    border-color: rgba(33, 150, 243, 0.4);
-}
-
-/* Action button (amber, for student actions) */
-.btn-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--navy-900);
-    background: linear-gradient(135deg, var(--amber-500), var(--amber-400));
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.25s var(--ease);
-    box-shadow: 0 3px 12px rgba(255, 152, 0, 0.3);
-    width: 100%;
-    justify-content: center;
-}
-.btn-action:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 20px rgba(255, 152, 0, 0.4);
-}
-.btn-action.completed {
-    background: linear-gradient(135deg, var(--green-500), var(--green-400));
-    box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
-    pointer-events: none;
-}
-
-/* ========== SIMULATION LAYOUT ========== */
-.sim-layout {
-    display: flex;
-    height: 100%;
-    overflow: hidden;
-}
-
-/* Workspace */
-#workspace {
-    width: var(--workspace-w);
-    height: 100%;
-    background: var(--navy-900);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-#workspace-image-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        linear-gradient(180deg, rgba(10, 22, 40, 0.3) 0%, transparent 20%),
-        linear-gradient(0deg, rgba(10, 22, 40, 0.5) 0%, transparent 15%);
-}
-
-#workspace-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transition: opacity 0.5s var(--ease);
-    border-radius: 2px;
-}
-
-#workspace-img.loading { opacity: 0; }
-
-#workspace-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-#workspace-controls {
-    position: absolute;
-    bottom: 16px;
-    left: 16px;
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.ws-btn {
-    background: rgba(15, 31, 61, 0.85);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--gray-400);
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    transition: all 0.2s var(--ease);
-}
-.ws-btn:hover { background: rgba(15, 31, 61, 0.95); color: var(--white); }
-
-/* ========== NOTEBOOK ========== */
-#notebook {
-    width: var(--notebook-w);
-    height: 100%;
-    background: var(--navy-800);
-    border-left: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-/* Phase Tracker */
-#phase-tracker {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 60px;
-    width: 44px;
-    background: rgba(10, 22, 40, 0.6);
-    border-left: 1px solid rgba(255,255,255,0.04);
-    overflow-y: auto;
-    z-index: 5;
-}
-
-.phase-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 4px;
-    cursor: default;
-    transition: all 0.3s var(--ease);
-    position: relative;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-}
-
-.phase-item::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: transparent;
-    transition: background 0.3s var(--ease);
-}
-
-.phase-item.active::before { background: var(--blue-500); }
-.phase-item.completed::before { background: var(--green-500); }
-
-.phase-num {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    background: rgba(255,255,255,0.06);
-    color: var(--gray-500);
-    margin-bottom: 4px;
-    transition: all 0.3s var(--ease);
-}
-
-.phase-item.active .phase-num {
-    background: var(--blue-500);
-    color: var(--white);
-    box-shadow: 0 0 12px rgba(33, 150, 243, 0.4);
-}
-
-.phase-item.completed .phase-num {
-    background: var(--green-500);
-    color: var(--white);
-}
-
-.phase-label {
-    font-size: 7px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    color: var(--gray-600);
-    text-align: center;
-    line-height: 1.3;
-    transition: color 0.3s var(--ease);
-}
-
-.phase-item.active .phase-label { color: var(--blue-300); }
-.phase-item.completed .phase-label { color: var(--green-400); }
-
-/* Notebook Content */
-#notebook-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 28px 24px 28px 24px;
-    margin-right: 44px;
-    scroll-behavior: smooth;
-}
-
-#notebook-content::-webkit-scrollbar { width: 4px; }
-#notebook-content::-webkit-scrollbar-track { background: transparent; }
-#notebook-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-/* Notebook Content Elements */
-.nb-section-num {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--blue-400);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 4px;
-}
-
-.nb-section-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--white);
-    margin-bottom: 4px;
-    line-height: 1.3;
-}
-
-.nb-section-title::after {
-    content: '';
-    display: block;
-    width: 48px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--blue-500), var(--teal-500));
-    margin-top: 10px;
-    border-radius: 2px;
-}
-
-.nb-text {
-    font-size: 14px;
-    line-height: 1.75;
-    color: var(--gray-300);
-    margin: 16px 0;
-}
-
-.nb-text strong {
-    color: var(--white);
-    font-weight: 600;
-}
-
-.nb-instructor {
-    background: rgba(33, 150, 243, 0.08);
-    border-left: 3px solid var(--blue-500);
-    padding: 14px 18px;
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    margin: 16px 0;
-}
-
-.nb-instructor p {
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--gray-300);
-}
-
-.nb-instructor-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--blue-400);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.nb-note {
-    background: rgba(255, 152, 0, 0.08);
-    border-left: 3px solid var(--amber-500);
-    padding: 12px 16px;
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    margin: 14px 0;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--amber-400);
-}
-
-.nb-success {
-    background: rgba(76, 175, 80, 0.08);
-    border-left: 3px solid var(--green-500);
-    padding: 12px 16px;
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    margin: 14px 0;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--green-400);
-}
-
-/* Objectives list */
-.nb-objectives {
-    list-style: none;
-    margin: 12px 0;
-}
-
-.nb-objectives li {
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--gray-300);
-    padding: 6px 0 6px 24px;
-    position: relative;
-}
-
-.nb-objectives li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 12px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--blue-500);
-}
-
-/* Safety quiz */
-.safety-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin: 16px 0;
-}
-
-.safety-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.2s var(--ease);
-    font-size: 13px;
-    color: var(--gray-300);
-}
-
-.safety-option:hover { border-color: rgba(33, 150, 243, 0.3); background: rgba(33, 150, 243, 0.06); }
-.safety-option.selected { border-color: var(--blue-500); background: rgba(33, 150, 243, 0.12); color: var(--white); }
-.safety-option.correct { border-color: var(--green-500); background: rgba(76, 175, 80, 0.12); color: var(--green-400); }
-.safety-option.incorrect { border-color: var(--red-500); background: rgba(239, 83, 80, 0.12); color: var(--red-500); }
-
-.safety-option .option-check {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    border: 2px solid rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    flex-shrink: 0;
-    transition: all 0.2s var(--ease);
-}
-
-.safety-option.selected .option-check {
-    border-color: var(--blue-500);
-    background: var(--blue-500);
-}
-
-.safety-option.correct .option-check { border-color: var(--green-500); background: var(--green-500); }
-.safety-option.incorrect .option-check { border-color: var(--red-500); background: var(--red-500); }
-
-/* Materials grid */
-.materials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
-    margin: 16px 0;
-}
-
-.material-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-    text-align: center;
-    transition: all 0.25s var(--ease);
-    cursor: default;
-}
-
-.material-card:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.12);
-    transform: translateY(-2px);
-}
-
-.material-card img {
-    width: 100%;
-    height: 80px;
-    object-fit: contain;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    background: rgba(255,255,255,0.03);
-}
-
-.material-card span {
-    font-size: 11px;
-    color: var(--gray-400);
-    line-height: 1.4;
-    display: block;
-}
-
-/* Action/step items */
-.nb-step-action {
-    margin: 16px 0;
-    animation: slideUp 0.4s var(--ease) both;
-}
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.nb-step-counter {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gray-500);
-    margin-bottom: 12px;
-    letter-spacing: 0.5px;
-}
-
-/* Sub-step progress inside a phase */
-.substep-progress {
-    display: flex;
-    gap: 4px;
-    margin: 12px 0;
-}
-
-.substep-dot {
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.08);
-    transition: background 0.3s var(--ease);
-}
-
-.substep-dot.completed { background: var(--green-500); }
-.substep-dot.active { background: var(--blue-500); }
-
-/* Navigation */
-#notebook-nav {
-    padding: 12px 24px 12px 24px;
-    margin-right: 44px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    justify-content: flex-end;
-}
-
-#notebook-nav .btn-primary {
-    padding: 12px 28px;
-}
-
-/* Completion card */
-.completion-card .completion-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 24px 0;
-    text-align: left;
-}
-
-.summary-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: rgba(76, 175, 80, 0.08);
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(76, 175, 80, 0.15);
-    font-size: 14px;
-    color: var(--green-400);
-}
-
-.summary-icon { font-size: 20px; }
-
-/* ========== MODAL ========== */
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.3s var(--ease);
-}
-.modal.hidden { opacity: 0; pointer-events: none; }
-
-.modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-}
-
-.modal-content {
-    position: relative;
-    background: var(--navy-700);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    max-width: 800px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-lg);
-}
-
-.modal-content h2 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--white);
-}
-
-.modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: rgba(255,255,255,0.06);
-    border: none;
-    color: var(--gray-400);
-    font-size: 16px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s var(--ease);
-}
-.modal-close:hover { background: rgba(255,255,255,0.12); color: var(--white); }
-
-/* Timer animation */
-.timer-display {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 36px;
-    font-weight: 500;
-    color: var(--teal-400);
-    text-align: center;
-    padding: 20px;
-    background: rgba(0, 188, 212, 0.06);
-    border-radius: var(--radius-md);
-    margin: 16px 0;
-    border: 1px solid rgba(0, 188, 212, 0.15);
-}
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 900px) {
-    :root {
-        --notebook-w: 45%;
-        --workspace-w: 55%;
-    }
-}
-
-@media (max-width: 700px) {
-    .sim-layout {
-        flex-direction: column;
-    }
-    #workspace, #notebook {
-        width: 100%;
-    }
-    #workspace { height: 40%; }
-    #notebook { height: 60%; }
-
-    #phase-tracker {
-        flex-direction: row;
-        width: 100%;
-        height: 36px;
-        position: relative;
-        bottom: auto;
-        right: auto;
-    }
-
-    .phase-item {
-        flex-direction: row;
-        padding: 6px 8px;
-        border-bottom: none;
-        border-right: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .phase-item::before {
-        top: auto;
-        left: 0; right: 0;
-        bottom: 0;
-        width: auto;
-        height: 3px;
-    }
-
-    .phase-label { display: none; }
-
-    #notebook-content { margin-right: 0; padding: 16px; }
-    #notebook-nav { margin-right: 0; }
-
-    .safety-grid { grid-template-columns: 1fr; }
-    .materials-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-}
-
-</style>
+        /* Reset & Globals */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            /* Brand Colors */
+            --navy-900: #0a1628;
+            --navy-800: #0f1f3d;
+            --navy-700: #152a4e;
+            --navy-600: #1b3664;
+            --blue-500: #2196F3;
+            --blue-400: #42a5f5;
+            --blue-300: #64b5f6;
+            --teal-500: #00bcd4;
+            --teal-400: #26c6da;
+            --amber-500: #ff9800;
+            --amber-400: #ffa726;
+            --green-500: #4caf50;
+            --green-400: #66bb6a;
+            --red-500: #ef5350;
+            --white: #ffffff;
+            --gray-100: #f5f5f5;
+            --gray-200: #eeeeee;
+            --gray-300: #e0e0e0;
+            --gray-400: #bdbdbd;
+            --gray-500: #9e9e9e;
+            --gray-600: #757575;
+            --gray-700: #616161;
+            --gray-800: #424242;
+
+            /* Layout */
+            --topbar-h: 48px;
+            --notebook-w: 45%;
+            --workspace-w: 55%;
+
+            /* Transitions */
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Shadows */
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+            /* Radii */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--navy-900);
+            color: var(--white);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========== TOP BAR ========== */
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-h);
+            background: var(--navy-800);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+
+        #topbar-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        #topbar-brand {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== SCREENS ========== */
+        .screen {
+            position: fixed;
+            top: var(--topbar-h);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s var(--ease);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ========== WELCOME / COMPLETION SCREEN ========== */
+        .welcome-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(33, 150, 243, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(0, 188, 212, 0.08) 0%, transparent 60%),
+                var(--navy-900);
+            padding: 32px;
+        }
+
+        .welcome-card {
+            text-align: center;
+            max-width: 560px;
+            padding: 56px 48px;
+            background: linear-gradient(145deg, rgba(15, 31, 61, 0.9), rgba(10, 22, 40, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            animation: cardAppear 0.7s var(--ease) both;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .welcome-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .welcome-card h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--blue-300), var(--teal-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card h2 {
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--gray-300);
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 13px;
+            color: var(--gray-500);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+
+        .welcome-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--gray-400);
+            margin-bottom: 32px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--blue-500), var(--teal-500));
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(33, 150, 243, 0.45);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-glow {
+            animation: btnGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes btnGlow {
+            from {
+                box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+            }
+
+            to {
+                box-shadow: 0 4px 30px rgba(33, 150, 243, 0.55);
+            }
+        }
+
+        .btn-icon {
+            font-size: 16px;
+        }
+
+        .btn-arrow {
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        /* Secondary Button */
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--blue-300);
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.25);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(33, 150, 243, 0.2);
+            border-color: rgba(33, 150, 243, 0.4);
+        }
+
+        /* Action button (amber, for student actions) */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy-900);
+            background: linear-gradient(135deg, var(--amber-500), var(--amber-400));
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+            box-shadow: 0 3px 12px rgba(255, 152, 0, 0.3);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-action.completed {
+            background: linear-gradient(135deg, var(--green-500), var(--green-400));
+            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
+            pointer-events: none;
+        }
+
+        .btn-action.waiting-slideshow {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.25), rgba(255, 152, 0, 0.15));
+            color: var(--gray-400);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== SIMULATION LAYOUT ========== */
+        .sim-layout {
+            display: flex;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Workspace */
+        #workspace {
+            width: var(--workspace-w);
+            height: 100%;
+            background: var(--navy-900);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #workspace-image-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(180deg, rgba(10, 22, 40, 0.3) 0%, transparent 20%),
+                linear-gradient(0deg, rgba(10, 22, 40, 0.5) 0%, transparent 15%);
+        }
+
+        #workspace-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.5s var(--ease);
+            border-radius: 2px;
+        }
+
+        #workspace-img.loading {
+            opacity: 0;
+        }
+
+        /* Crossfade slideshow */
+        .ws-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .ws-img.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .ws-img:not(.active) {
+            z-index: 1;
+        }
+
+        /* Slideshow progress bar (top of workspace) */
+        #slideshow-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            gap: 4px;
+            padding: 8px 10px;
+            z-index: 10;
+        }
+
+        #slideshow-bar:empty {
+            display: none;
+        }
+
+        .slideshow-seg {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            transition: background 0.3s var(--ease);
+        }
+
+        .slideshow-seg.viewed {
+            background: var(--green-500);
+        }
+
+        .slideshow-seg.current {
+            background: var(--blue-500);
+        }
+
+        #workspace-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        #workspace-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .ws-btn {
+            background: rgba(15, 31, 61, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-400);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s var(--ease);
+        }
+
+        .ws-btn:hover {
+            background: rgba(15, 31, 61, 0.95);
+            color: var(--white);
+        }
+
+        /* ========== NOTEBOOK ========== */
+        #notebook {
+            width: var(--notebook-w);
+            height: 100%;
+            background: var(--navy-800);
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Phase Tracker */
+        #phase-tracker {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 60px;
+            width: 110px;
+            background: rgba(10, 22, 40, 0.6);
+            border-left: 1px solid rgba(255, 255, 255, 0.04);
+            overflow-y: auto;
+            z-index: 5;
+        }
+
+        .phase-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 4px;
+            cursor: default;
+            transition: all 0.3s var(--ease);
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .phase-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: transparent;
+            transition: background 0.3s var(--ease);
+        }
+
+        .phase-item.active::before {
+            background: var(--blue-500);
+        }
+
+        .phase-item.completed::before {
+            background: var(--green-500);
+        }
+
+        .phase-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--gray-500);
+            margin-bottom: 4px;
+            transition: all 0.3s var(--ease);
+        }
+
+        .phase-item.active .phase-num {
+            background: var(--blue-500);
+            color: var(--white);
+            box-shadow: 0 0 12px rgba(33, 150, 243, 0.4);
+        }
+
+        .phase-item.completed .phase-num {
+            background: var(--green-500);
+            color: var(--white);
+        }
+
+        .phase-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--gray-600);
+            text-align: center;
+            line-height: 1.3;
+            transition: color 0.3s var(--ease);
+        }
+
+        .phase-item.active .phase-label {
+            color: var(--blue-300);
+        }
+
+        .phase-item.completed .phase-label {
+            color: var(--green-400);
+        }
+
+        /* Notebook Content */
+        #notebook-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 24px 28px 24px;
+            margin-right: 110px;
+            scroll-behavior: smooth;
+        }
+
+        #notebook-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #notebook-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #notebook-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Notebook Content Elements */
+        .nb-section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--blue-400);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+        }
+
+        .nb-section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .nb-section-title::after {
+            content: '';
+            display: block;
+            width: 48px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-500), var(--teal-500));
+            margin-top: 10px;
+            border-radius: 2px;
+        }
+
+        .nb-text {
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--gray-300);
+            margin: 16px 0;
+        }
+
+        .nb-text strong {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .nb-instructor {
+            background: rgba(33, 150, 243, 0.08);
+            border-left: 3px solid var(--blue-500);
+            padding: 14px 18px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 16px 0;
+        }
+
+        .nb-instructor p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--gray-300);
+        }
+
+        .nb-instructor-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue-400);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nb-note {
+            background: rgba(255, 152, 0, 0.08);
+            border-left: 3px solid var(--amber-500);
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 14px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--amber-400);
+        }
+
+        .nb-success {
+            background: rgba(76, 175, 80, 0.08);
+            border-left: 3px solid var(--green-500);
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: 14px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--green-400);
+        }
+
+        /* Objectives list */
+        .nb-objectives {
+            list-style: none;
+            margin: 12px 0;
+        }
+
+        .nb-objectives li {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--gray-300);
+            padding: 6px 0 6px 24px;
+            position: relative;
+        }
+
+        .nb-objectives li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--blue-500);
+        }
+
+        /* Safety quiz */
+        .safety-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .safety-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            font-size: 13px;
+            color: var(--gray-300);
+        }
+
+        .safety-option:hover {
+            border-color: rgba(33, 150, 243, 0.3);
+            background: rgba(33, 150, 243, 0.06);
+        }
+
+        .safety-option.selected {
+            border-color: var(--blue-500);
+            background: rgba(33, 150, 243, 0.12);
+            color: var(--white);
+        }
+
+        .safety-option.correct {
+            border-color: var(--green-500);
+            background: rgba(76, 175, 80, 0.12);
+            color: var(--green-400);
+        }
+
+        .safety-option.incorrect {
+            border-color: var(--red-500);
+            background: rgba(239, 83, 80, 0.12);
+            color: var(--red-500);
+        }
+
+        .safety-option .option-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            transition: all 0.2s var(--ease);
+        }
+
+        .safety-option.selected .option-check {
+            border-color: var(--blue-500);
+            background: var(--blue-500);
+        }
+
+        .safety-option.selected .option-check::after {
+            content: '✓';
+            color: var(--white);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .safety-option.correct .option-check::after {
+            content: '✓';
+            color: var(--white);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .safety-option.incorrect .option-check::after {
+            content: '✗';
+            color: var(--white);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .safety-option.correct .option-check {
+            border-color: var(--green-500);
+            background: var(--green-500);
+        }
+
+        .safety-option.incorrect .option-check {
+            border-color: var(--red-500);
+            background: var(--red-500);
+        }
+
+        .safety-option.missed .option-check {
+            border-color: var(--red-500);
+            background: transparent;
+        }
+
+        /* Materials grid */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .material-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+            transition: all 0.25s var(--ease);
+            cursor: default;
+        }
+
+        .material-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .material-card img {
+            width: 100%;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .material-card span {
+            font-size: 11px;
+            color: var(--gray-400);
+            line-height: 1.4;
+            display: block;
+        }
+
+        /* Action/step items */
+        .nb-step-action {
+            margin: 16px 0;
+            animation: slideUp 0.4s var(--ease) both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nb-step-counter {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sub-step progress inside a phase */
+        .substep-progress {
+            display: flex;
+            gap: 4px;
+            margin: 12px 0;
+        }
+
+        .substep-dot {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            transition: background 0.3s var(--ease);
+        }
+
+        .substep-dot.completed {
+            background: var(--green-500);
+        }
+
+        .substep-dot.active {
+            background: var(--blue-500);
+        }
+
+        /* Navigation */
+        #notebook-nav {
+            padding: 12px 24px 12px 24px;
+            margin-right: 110px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #notebook-nav .btn-primary {
+            padding: 12px 28px;
+        }
+
+        .btn-back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-300);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+        }
+
+        .btn-back-nav:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+        }
+
+        .btn-back-nav:disabled {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Completion card */
+        .completion-card .completion-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(76, 175, 80, 0.08);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(76, 175, 80, 0.15);
+            font-size: 14px;
+            color: var(--green-400);
+        }
+
+        .summary-icon {
+            font-size: 20px;
+        }
+
+        /* ========== MODAL ========== */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s var(--ease);
+        }
+
+        .modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--navy-700);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-content h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: var(--gray-400);
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s var(--ease);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--white);
+        }
+
+        /* Timer animation */
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 500;
+            color: var(--teal-400);
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 188, 212, 0.06);
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border: 1px solid rgba(0, 188, 212, 0.15);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 900px) {
+            :root {
+                --notebook-w: 50%;
+                --workspace-w: 50%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sim-layout {
+                flex-direction: column;
+            }
+
+            #workspace,
+            #notebook {
+                width: 100%;
+            }
+
+            #workspace {
+                height: 40%;
+            }
+
+            #notebook {
+                height: 60%;
+            }
+
+            #phase-tracker {
+                flex-direction: row;
+                width: 100%;
+                height: 36px;
+                position: relative;
+                bottom: auto;
+                right: auto;
+            }
+
+            .phase-item {
+                flex-direction: row;
+                padding: 6px 8px;
+                border-bottom: none;
+                border-right: 1px solid rgba(255, 255, 255, 0.03);
+            }
+
+            .phase-item::before {
+                top: auto;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: auto;
+                height: 3px;
+            }
+
+            .phase-label {
+                display: none;
+            }
+
+            #notebook-content {
+                margin-right: 0;
+                padding: 16px;
+            }
+
+            #notebook-nav {
+                margin-right: 0;
+            }
+
+            .safety-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .materials-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Top Navigation Bar -->
     <nav id="topbar">
-        <button id="btn-back" class="nav-icon" title="Volver">‹</button>
         <span id="topbar-title">Extracción de ADN</span>
         <span id="topbar-brand">BIOL 1104 · Lab Virtual</span>
     </nav>
@@ -876,7 +1128,8 @@ html, body {
                 <h1>Laboratorio #6</h1>
                 <h2>Extracción de ADN de Células de Cebolla</h2>
                 <p class="welcome-subtitle">Simulación Virtual — BIOL 1104</p>
-                <p class="welcome-desc">En esta simulación aprenderás los pasos básicos para extraer ADN de una célula eucariota vegetal utilizando una adaptación de un método inorgánico de extracción.</p>
+                <p class="welcome-desc">En esta simulación aprenderás los pasos básicos para extraer ADN de una célula
+                    eucariota vegetal utilizando una adaptación de un método inorgánico de extracción.</p>
                 <button class="btn-primary btn-glow" onclick="startSimulation()">
                     <span class="btn-icon">▶</span> Comenzar Simulación
                 </button>
@@ -890,7 +1143,9 @@ html, body {
             <!-- LEFT: Lab Workspace -->
             <div id="workspace">
                 <div id="workspace-image-container">
-                    <img id="workspace-img" src="" alt="Espacio de trabajo del laboratorio">
+                    <div id="slideshow-bar"></div>
+                    <img id="workspace-img" class="ws-img active" src="" alt="Espacio de trabajo del laboratorio">
+                    <img id="workspace-img-bg" class="ws-img" src="" alt="">
                     <div id="workspace-overlay"></div>
                     <!-- Action hotspots rendered dynamically -->
                 </div>
@@ -946,6 +1201,9 @@ html, body {
 
                 <!-- Navigation -->
                 <div id="notebook-nav">
+                    <button id="btn-prev" class="btn-primary" onclick="prevStep()" disabled>
+                        <span class="btn-arrow">‹</span> Sección anterior
+                    </button>
                     <button id="btn-next" class="btn-primary" onclick="nextStep()" disabled>
                         Siguiente sección <span class="btn-arrow">›</span>
                     </button>
@@ -961,7 +1219,8 @@ html, body {
                 <div class="welcome-icon">🎉</div>
                 <h1>¡Simulación Completada!</h1>
                 <h2>Has aprendido los pasos básicos para realizar extracción de ADN</h2>
-                <p class="welcome-desc">Recuerda: luego de completar el procedimiento, documenta tus observaciones y completa tu análisis. Busca las instrucciones en el POST-laboratorio.</p>
+                <p class="welcome-desc">Recuerda: luego de completar el procedimiento, documenta tus observaciones y
+                    completa tu análisis. Busca las instrucciones en el POST-laboratorio.</p>
                 <div class="completion-summary">
                     <div class="summary-item">
                         <span class="summary-icon">🧪</span>
@@ -996,64 +1255,115 @@ html, body {
     </div>
 
     <script>
-/* ============================================
-   BIOL 1104 Lab #6 — DNA Extraction Simulation
-   State Machine & Interactive Logic
-   ============================================ */
+        /* ============================================
+           BIOL 1104 Lab #6 — DNA Extraction Simulation
+           State Machine & Interactive Logic
+           ============================================ */
 
-// ─── Image Paths ───
-const GITHUB_BASE = 'https://raw.githubusercontent.com/INTERLabs-Prototypes/biol1104-lab6/main/';
+        // ─── Image Paths ───
+        const GITHUB_BASE = 'https://raw.githubusercontent.com/INTERLabs-Prototypes/biol1104-lab6/main/';
+        const IMG_BASE = GITHUB_BASE + 'Imagenes/';
 
-const IMG = {
-    titulos: {
-        t1: GITHUB_BASE + 'Imagenes/Titulos/Title1.png',  // Solution prep
-        t2: GITHUB_BASE + 'Imagenes/Titulos/Title2.png',  // Onion cutting
-        t3: GITHUB_BASE + 'Imagenes/Titulos/Title3.png',  // Blending
-    },
-    pasos: {
-        p1: GITHUB_BASE + 'Imagenes/Pasos/Paso1.png',    // Mixing solution with glass rod
-        p2a: GITHUB_BASE + 'Imagenes/Pasos/Paso2a.png',  // Cutting onion
-        p2b: GITHUB_BASE + 'Imagenes/Pasos/Paso2b.png',  // Cutting onion close-up
-        p3: GITHUB_BASE + 'Imagenes/Pasos/Paso3.png',    // Filtering with funnel
-        p4a: GITHUB_BASE + 'Imagenes/Pasos/Paso4a.png',  // Pouring into test tube + ethanol
-        p4b: GITHUB_BASE + 'Imagenes/Pasos/Paso4b.png',  // Final DNA visible
-    },
-    materiales: [
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Cebollas_frescas.png', name: '3 cebollas frescas' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Probetas.png', name: 'Probetas (10, 50, 100 ml)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Beaker_de_250_ml.png', name: '3 beakers de 250 ml' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Cuchillo.png', name: '1 cuchillo' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Tubo_de_ensayo_de_15_ml.png', name: '1 tubo de ensayo 15 ml' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Licuadora.png', name: '1 licuadora' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Gradilla.png', name: '1 gradilla' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Embudo1.png', name: '1 embudo' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Varillas_de_cristal.png', name: '4 varillas de cristal' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Filtros_de_café.png', name: '1 filtro de café' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Sal_sin_yodo_20g.png', name: 'Sal sin yodo (20 g)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Ablandador_de_carne_5g.png', name: 'Ablandador de carne (5 g)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Detergente_20_ml.png', name: 'Detergente (20 ml)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Agua_destilada_de_95_ml_y_180_ml.png', name: 'Agua destilada (180 + 95 ml)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/95_etanol_frío_6_ml.png', name: 'Etanol 95% frío (6 ml)' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Balanza.png', name: '1 balanza' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Regla.png', name: '1 regla' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Tabla_de_picar.png', name: '1 tabla para picar' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Platos.png', name: '2 platos' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Espatulas.png', name: '2 espátulas' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Nevera_congelador.png', name: 'Nevera / congelador' },
-        { src: GITHUB_BASE + 'Imagenes/Materiales/Marcador_negro.png', name: 'Marcador negro' },
-    ]
-};
+        // URL-encoded path segments for Spanish folder names
+        const S1 = 'Secci%C3%B3n%201/';
+        const S2 = 'Secci%C3%B3n%202/';
+        const S3 = 'Secci%C3%B3n%203/';
+        const S4 = 'Secci%C3%B3n%204/';
 
-// ─── Phase & Step Definitions ───
-const PHASES = [
-    // 0 — Introduction
-    {
-        id: 'intro',
-        title: 'INTRODUCCIÓN',
-        steps: [
+        const IMG = {
+            // Section images (single images for intro screens)
+            intro: IMG_BASE + S1 + 'Introducci%C3%B3n/Intruduccion_1a.jpeg',
+            objetivos: IMG_BASE + S1 + 'Objetivos/Objetivos_1a.jpeg',
+            seguridad: IMG_BASE + S2 + 'Vestimenta%20de%20Seguridad/Vestimenta_de_Seguridad_1a.jpeg',
+
+            // Phase step images — arrays for multi-image steps, strings for single-image
+            fase1: {
+                paso1: [IMG_BASE + S4 + 'Fase%201/Paso%201%20de%206/Fase_1_Paso_1a.jpeg'],
+                paso2: [
+                    IMG_BASE + S4 + 'Fase%201/Paso%202%20de%206/Fase_1_Paso_2a.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%202%20de%206/Fase_1_Paso_2b.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%202%20de%206/Fase_1_Paso_2c.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%202%20de%206/Fase_1_Paso_2d.jpeg',
+                ],
+                paso3: [IMG_BASE + S4 + 'Fase%201/Paso%203%20de%206/Fase_1_Paso_3a.jpeg'],
+                paso4: [IMG_BASE + S4 + 'Fase%201/Paso%204%20de%206/Fase_1_Paso_4a.jpeg'],
+                paso5: [
+                    IMG_BASE + S4 + 'Fase%201/Paso%205%20de%206/Fase_1_Paso_5a.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%205%20de%206/Fase_1_Paso_5b.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%205%20de%206/Fase_1_Paso_5c.jpeg',
+                    IMG_BASE + S4 + 'Fase%201/Paso%205%20de%206/Fase_1_Paso_5d.jpeg',
+                ],
+                paso6: [IMG_BASE + S4 + 'Fase%201/Paso%206%20de%206/Fase_1_Paso_6a.jpeg'],
+            },
+            fase2: {
+                paso1: [IMG_BASE + S4 + 'Fase%202/Paso%201%20de%205/Fase_2_Paso_1a.jpeg'],
+                paso2: [
+                    IMG_BASE + S4 + 'Fase%202/Paso%202%20de%205/Fase_2_Paso_2a.jpeg',
+                    IMG_BASE + S4 + 'Fase%202/Paso%202%20de%205/Fase_2_Paso_2b.jpeg',
+                ],
+                paso3: [IMG_BASE + S4 + 'Fase%202/Paso%203%20de%205/Fase_2_Paso_3a.jpeg'],
+                paso4: [IMG_BASE + S4 + 'Fase%202/Paso%204%20de%205/Fase_2_Paso_4a.jpeg'],
+                paso5: [
+                    IMG_BASE + S4 + 'Fase%202/Paso%205%20de%205/Fase_2_Paso_5a.jpeg',
+                    IMG_BASE + S4 + 'Fase%202/Paso%205%20de%205/Fase_2_Paso_5b.jpeg',
+                ],
+            },
+            fase3: {
+                paso1: [
+                    IMG_BASE + S4 + 'Fase%203/Paso%201%20de%204/Fase_3_Paso_1a.jpeg',
+                    IMG_BASE + S4 + 'Fase%203/Paso%201%20de%204/Fase_3_Paso_1b.jpeg',
+                ],
+                paso2: [
+                    IMG_BASE + S4 + 'Fase%203/Paso%202%20de%204/Fase_3_Paso_2a.jpeg',
+                    IMG_BASE + S4 + 'Fase%203/Paso%202%20de%204/Fase_3_Paso_2b.jpeg',
+                ],
+                paso3: [IMG_BASE + S4 + 'Fase%203/Paso%203%20de%204/Fase_3_Paso_3a.jpeg'],
+                paso4: [IMG_BASE + S4 + 'Fase%203/Paso%204%20de%204/Fase_3_Paso_4a.jpeg'],
+            },
+            fase4: {
+                paso1: [IMG_BASE + S4 + 'Fase%204/Fase_4_Paso_4a.jpeg'],
+            },
+
+            // Materials (images in Sección 3/Materiales)
+            materiales: [
+                { src: IMG_BASE + S3 + 'Materiales/Bata.png', name: 'Bata de laboratorio' },
+                { src: IMG_BASE + S3 + 'Materiales/Guantes.png', name: 'Guantes de laboratorio' },
+                { src: IMG_BASE + S3 + 'Materiales/Gafas.png', name: 'Gafas de seguridad' },
+                { src: IMG_BASE + S3 + 'Materiales/Detergente_25ml.png', name: 'Detergente líquido' },
+                { src: IMG_BASE + S3 + 'Materiales/Beaker_250ml.png', name: '3 beakers de 250 ml' },
+                { src: IMG_BASE + S3 + 'Materiales/Probeta_10ml.png', name: 'Probeta de 10 ml' },
+                { src: IMG_BASE + S3 + 'Materiales/Probeta_50ml.png', name: 'Probeta de 50 ml' },
+                { src: IMG_BASE + S3 + 'Materiales/Probetas_100ml.png', name: 'Probeta de 100 ml' },
+                { src: IMG_BASE + S3 + 'Materiales/Agua_destilada.png', name: 'Agua destilada' },
+                { src: IMG_BASE + S3 + 'Materiales/Balanza.png', name: 'Balanza de peso' },
+                { src: IMG_BASE + S3 + 'Materiales/Varilla_cristal.png', name: 'Varilla de cristal' },
+                { src: IMG_BASE + S3 + 'Materiales/Ablandador_5g.png', name: 'Ablandador de carne en polvo' },
+                { src: IMG_BASE + S3 + 'Materiales/Ethanol_95.png', name: 'Etanol 95%' },
+                { src: IMG_BASE + S3 + 'Materiales/Nevera_congelador.png', name: 'Congelador de laboratorio' },
+                { src: IMG_BASE + S3 + 'Materiales/Cebollas_frescas.png', name: '3 cebollas frescas' },
+                { src: IMG_BASE + S3 + 'Materiales/Cuchillo.png', name: 'Cuchillo' },
+                { src: IMG_BASE + S3 + 'Materiales/Tabla_de_picar.png', name: 'Tabla de picar' },
+                { src: IMG_BASE + S3 + 'Materiales/Regla.png', name: 'Regla de medir' },
+                { src: IMG_BASE + S3 + 'Materiales/Licuadora.png', name: 'Licuadora' },
+                { src: IMG_BASE + S3 + 'Materiales/Cronometro.png', name: 'Cronómetro' },
+                { src: IMG_BASE + S3 + 'Materiales/Embudo.png', name: 'Embudo de cristal' },
+                { src: IMG_BASE + S3 + 'Materiales/Papel_de_filtro.png', name: 'Papel de filtro' },
+                { src: IMG_BASE + S3 + 'Materiales/Tubo_de_ensayo10ml.png', name: 'Tubo de ensayo' },
+                { src: IMG_BASE + S3 + 'Materiales/Gradilla.png', name: 'Gradilla' },
+                { src: IMG_BASE + S3 + 'Materiales/Marcador_negro.png', name: 'Marcador negro' },
+            ]
+        };
+
+        // ─── Phase & Step Definitions ───
+        const PHASES = [
+            // 0 — Introduction
             {
-                image: IMG.titulos.t1,
-                content: `
+                id: 'intro',
+                title: 'INTRODUCCIÓN',
+                steps: [
+                    {
+                        image: IMG.intro,
+                        content: `
                     <div class="nb-section-num">Sección 1</div>
                     <h2 class="nb-section-title">Introducción</h2>
                     <div class="nb-instructor">
@@ -1069,11 +1379,11 @@ const PHASES = [
                     </ul>
                     <p class="nb-text">La cebolla tiene casi 5 veces la cantidad de ADN que un ser humano, además es un bulbo translúcido con bajo contenido de almidón, lo que permite ver el ADN claramente.</p>
                 `,
-                canProceed: true
-            },
-            {
-                image: IMG.titulos.t1,
-                content: `
+                        canProceed: true
+                    },
+                    {
+                        image: IMG.objetivos,
+                        content: `
                     <div class="nb-section-num">Sección 1</div>
                     <h2 class="nb-section-title">Objetivos</h2>
                     <div class="nb-instructor">
@@ -1091,18 +1401,18 @@ const PHASES = [
                         <p>La extracción de ADN sigue unos principios generales que varían según el tipo de célula de donde se desea extraer el ADN.</p>
                     </div>
                 `,
-                canProceed: true
-            }
-        ]
-    },
-    // 1 — Safety
-    {
-        id: 'safety',
-        title: 'SEGURIDAD',
-        steps: [
+                        canProceed: true
+                    }
+                ]
+            },
+            // 1 — Safety
             {
-                image: IMG.titulos.t1,
-                content: `
+                id: 'safety',
+                title: 'SEGURIDAD',
+                steps: [
+                    {
+                        image: IMG.seguridad,
+                        content: `
                     <div class="nb-section-num">Sección 2</div>
                     <h2 class="nb-section-title">Vestimenta de Seguridad</h2>
                     <div class="nb-instructor">
@@ -1138,31 +1448,31 @@ const PHASES = [
                     <button class="btn-action" id="btn-check-safety" onclick="checkSafety()">Verificar vestimenta</button>
                     <div id="safety-feedback"></div>
                 `,
-                canProceed: false,
-                requiresSafety: true
-            }
-        ]
-    },
-    // 2 — Materials
-    {
-        id: 'materials',
-        title: 'MATERIALES',
-        steps: [
+                        canProceed: false,
+                        requiresSafety: true
+                    }
+                ]
+            },
+            // 2 — Materials
             {
-                image: IMG.titulos.t1,
-                content: 'MATERIALS_PLACEHOLDER',
-                canProceed: true
-            }
-        ]
-    },
-    // 3 — Demo
-    {
-        id: 'demo',
-        title: 'DEMOSTRACIÓN',
-        steps: [
+                id: 'materials',
+                title: 'MATERIALES',
+                steps: [
+                    {
+                        image: IMG.intro,
+                        content: 'MATERIALS_PLACEHOLDER',
+                        canProceed: true
+                    }
+                ]
+            },
+            // 3 — Demo
             {
-                image: IMG.titulos.t1,
-                content: `
+                id: 'demo',
+                title: 'DEMOSTRACIÓN',
+                steps: [
+                    {
+                        image: IMG.intro,
+                        content: `
                     <div class="nb-section-num">Sección 4</div>
                     <h2 class="nb-section-title">Demostración</h2>
                     <div class="nb-instructor">
@@ -1191,18 +1501,18 @@ const PHASES = [
                     </div>
                     <div class="nb-note">📝 ¡Recuerda! Toma apuntes del procedimiento y el propósito de cada paso.</div>
                 `,
-                canProceed: true
-            }
-        ]
-    },
-    // 4 — Phase 1: Prepare Solutions
-    {
-        id: 'phase1',
-        title: 'PREPARAR SOLUCIONES',
-        steps: [
+                        canProceed: true
+                    }
+                ]
+            },
+            // 4 — Phase 1: Prepare Solutions
             {
-                image: IMG.titulos.t1,
-                content: `
+                id: 'phase1',
+                title: 'PREPARAR SOLUCIONES',
+                steps: [
+                    {
+                        image: IMG.fase1.paso1,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 1 de 6</div>
                     <h2 class="nb-section-title">Solución de Detergente y Sal</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1212,12 +1522,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🏷️ Buscar beaker y rotularlo "solución sal+detergente"</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p1,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase1.paso2,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 2 de 6</div>
                     <h2 class="nb-section-title">Agregar Ingredientes</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1227,12 +1537,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🧪 Agregar detergente, sal y agua destilada al beaker</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p1,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase1.paso3,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 3 de 6</div>
                     <h2 class="nb-section-title">Agitar la Solución</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1243,12 +1553,12 @@ const PHASES = [
                     <button class="btn-action" onclick="completeAction(this)">🥢 Agitar suavemente con varilla de cristal</button>
                     <div class="nb-success" style="margin-top:12px; display:none;" id="stir-feedback">✅ ¡Solución de detergente y sal preparada!</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.titulos.t1,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase1.paso4,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 4 de 6</div>
                     <h2 class="nb-section-title">Solución de Ablandador de Carne</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1258,12 +1568,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🏷️ Buscar segundo beaker y rotularlo "solución ablandador"</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p1,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase1.paso5,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 5 de 6</div>
                     <h2 class="nb-section-title">Preparar Solución de Ablandador</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1273,12 +1583,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🧪 Agregar ablandador, agua y agitar</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.titulos.t1,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase1.paso6,
+                        content: `
                     <div class="nb-section-num">Fase 1 — Paso 6 de 6</div>
                     <h2 class="nb-section-title">Preparar el Etanol</h2>
                     <div class="substep-progress" id="phase1-progress"></div>
@@ -1289,19 +1599,19 @@ const PHASES = [
                     <button class="btn-action" onclick="completeAction(this)">❄️ Colocar etanol en el congelador</button>
                     <div class="nb-success" style="margin-top:12px; display:none;" id="phase1-complete">✅ ¡Has terminado de preparar las soluciones! Puedes continuar con la lisis celular.</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            }
-        ]
-    },
-    // 5 — Phase 2: Cell Lysis
-    {
-        id: 'phase2',
-        title: 'LISIS CELULAR',
-        steps: [
+                        canProceed: false,
+                        requiresAction: true
+                    }
+                ]
+            },
+            // 5 — Phase 2: Cell Lysis
             {
-                image: IMG.titulos.t2,
-                content: `
+                id: 'phase2',
+                title: 'LISIS CELULAR',
+                steps: [
+                    {
+                        image: IMG.fase2.paso1,
+                        content: `
                     <div class="nb-section-num">Fase 2 — Paso 1 de 5</div>
                     <h2 class="nb-section-title">Cortar las Cebollas</h2>
                     <div class="substep-progress" id="phase2-progress"></div>
@@ -1312,12 +1622,12 @@ const PHASES = [
                     <button class="btn-action" onclick="completeAction(this)">🔪 Cortar cebollas y medir con regla (2.5 cm)</button>
                     <div class="nb-note">⚠️ ¡Lava el cuchillo después de utilizarlo!</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p2a,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase2.paso2,
+                        content: `
                     <div class="nb-section-num">Fase 2 — Paso 2 de 5</div>
                     <h2 class="nb-section-title">Licuar con Solución</h2>
                     <div class="substep-progress" id="phase2-progress"></div>
@@ -1328,12 +1638,12 @@ const PHASES = [
                     <button class="btn-action" onclick="completeAction(this)">🫧 Poner cebollas y solución en licuadora</button>
                     <div class="nb-note">📏 Recuerda que para medir correctamente debes buscar la base del menisco.</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.titulos.t3,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase2.paso3,
+                        content: `
                     <div class="nb-section-num">Fase 2 — Paso 3 de 5</div>
                     <h2 class="nb-section-title">Licuar la Mezcla</h2>
                     <div class="substep-progress" id="phase2-progress"></div>
@@ -1343,17 +1653,17 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="startBlendTimer(this)">⚡ Encender licuadora</button>
                     <div id="blend-timer" style="display:none;">
-                        <div class="timer-display" id="blend-countdown">01:30</div>
+                        <div class="timer-display" id="blend-countdown">02:00</div>
                         <p class="nb-text" style="text-align:center;">Licuando mezcla...</p>
                     </div>
                     <div class="nb-note">📝 ¡Mientras se licúa, actualiza tus apuntes!</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p3,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase2.paso4,
+                        content: `
                     <div class="nb-section-num">Fase 2 — Paso 4 de 5</div>
                     <h2 class="nb-section-title">Filtrar la Mezcla</h2>
                     <div class="substep-progress" id="phase2-progress"></div>
@@ -1363,12 +1673,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🫗 Filtrar contenido de la licuadora</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p3,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase2.paso5,
+                        content: `
                     <div class="nb-section-num">Fase 2 — Paso 5 de 5</div>
                     <h2 class="nb-section-title">Agregar Ablandador de Carne</h2>
                     <div class="substep-progress" id="phase2-progress"></div>
@@ -1379,19 +1689,19 @@ const PHASES = [
                     <button class="btn-action" onclick="completeAction(this)">🧪 Agregar ablandador y agitar suavemente</button>
                     <div class="nb-success" style="margin-top:12px; display:none;" id="phase2-complete">✅ ¡Has completado la lisis celular y remoción de contaminantes!</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            }
-        ]
-    },
-    // 6 — Phase 3: DNA Precipitation
-    {
-        id: 'phase3',
-        title: 'PRECIPITACIÓN DEL ADN',
-        steps: [
+                        canProceed: false,
+                        requiresAction: true
+                    }
+                ]
+            },
+            // 6 — Phase 3: DNA Precipitation
             {
-                image: IMG.pasos.p4a,
-                content: `
+                id: 'phase3',
+                title: 'PRECIPITACIÓN DEL ADN',
+                steps: [
+                    {
+                        image: IMG.fase3.paso1,
+                        content: `
                     <div class="nb-section-num">Fase 3 — Paso 1 de 4</div>
                     <h2 class="nb-section-title">Preparar Tubo de Ensayo</h2>
                     <div class="substep-progress" id="phase3-progress"></div>
@@ -1401,12 +1711,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🧪 Servir 6 ml en tubo de ensayo</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p4a,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase3.paso2,
+                        content: `
                     <div class="nb-section-num">Fase 3 — Paso 2 de 4</div>
                     <h2 class="nb-section-title">Agregar Etanol Frío</h2>
                     <div class="substep-progress" id="phase3-progress"></div>
@@ -1420,12 +1730,12 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">❄️ Servir 6 ml de etanol frío por las paredes del tubo</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p4a,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase3.paso3,
+                        content: `
                     <div class="nb-section-num">Fase 3 — Paso 3 de 4</div>
                     <h2 class="nb-section-title">Dejar Reposar</h2>
                     <div class="substep-progress" id="phase3-progress"></div>
@@ -1440,12 +1750,12 @@ const PHASES = [
                     </div>
                     <div class="nb-note">📝 Mientras transcurre el tiempo, actualiza tus apuntes.</div>
                 `,
-                canProceed: false,
-                requiresAction: true
-            },
-            {
-                image: IMG.pasos.p4b,
-                content: `
+                        canProceed: false,
+                        requiresAction: true
+                    },
+                    {
+                        image: IMG.fase3.paso4,
+                        content: `
                     <div class="nb-section-num">Fase 3 — Paso 4 de 4</div>
                     <h2 class="nb-section-title">Observar el ADN</h2>
                     <div class="substep-progress" id="phase3-progress"></div>
@@ -1455,19 +1765,19 @@ const PHASES = [
                     </div>
                     <button class="btn-action" onclick="completeAction(this)">🥢 Pescar el ADN con varilla de cristal</button>
                 `,
-                canProceed: false,
-                requiresAction: true
-            }
-        ]
-    },
-    // 7 — Phase 4: Results
-    {
-        id: 'phase4',
-        title: 'RESULTADOS',
-        steps: [
+                        canProceed: false,
+                        requiresAction: true
+                    }
+                ]
+            },
+            // 7 — Phase 4: Results
             {
-                image: IMG.pasos.p4b,
-                content: `
+                id: 'phase4',
+                title: 'RESULTADOS',
+                steps: [
+                    {
+                        image: IMG.fase4.paso1,
+                        content: `
                     <div class="nb-section-num">Fase 4</div>
                     <h2 class="nb-section-title">¡ADN Extraído!</h2>
                     <div class="nb-instructor">
@@ -1484,90 +1794,206 @@ const PHASES = [
                         <p>¡Muy bien! Has aprendido los pasos básicos para realizar extracción de ADN. Recuerda: luego de completar el procedimiento, documentar tus observaciones y completar tu análisis. Busca las instrucciones en el <strong>POST-laboratorio</strong>.</p>
                     </div>
                 `,
-                canProceed: true,
-                isFinal: true
+                        canProceed: true,
+                        isFinal: true
+                    }
+                ]
             }
-        ]
-    }
-];
+        ];
 
-// ─── State ───
-let currentPhase = 0;
-let currentStep = 0;
-let safetyPassed = false;
+        // ─── State ───
+        let currentPhase = 0;
+        let currentStep = 0;
+        let safetyPassed = false;
+        let slideshowInterval = null;
+        let slideshowIndex = 0;
 
-// ─── DOM Refs ───
-const $screens = {
-    welcome: document.getElementById('screen-welcome'),
-    sim: document.getElementById('screen-simulation'),
-    complete: document.getElementById('screen-complete')
-};
-const $workspaceImg = document.getElementById('workspace-img');
-const $notebookContent = document.getElementById('notebook-content');
-const $btnNext = document.getElementById('btn-next');
-const $phaseItems = document.querySelectorAll('.phase-item');
+        // ─── DOM Refs ───
+        const $screens = {
+            welcome: document.getElementById('screen-welcome'),
+            sim: document.getElementById('screen-simulation'),
+            complete: document.getElementById('screen-complete')
+        };
+        const $workspaceImg = document.getElementById('workspace-img');
+        const $workspaceImgBg = document.getElementById('workspace-img-bg');
+        const $slideshowBar = document.getElementById('slideshow-bar');
+        const $notebookContent = document.getElementById('notebook-content');
+        const $btnNext = document.getElementById('btn-next');
+        const $btnPrev = document.getElementById('btn-prev');
+        const $phaseItems = document.querySelectorAll('.phase-item');
 
-// ─── Screen Management ───
-function showScreen(name) {
-    Object.values($screens).forEach(s => s.classList.remove('active'));
-    $screens[name].classList.add('active');
-}
+        // ─── Screen Management ───
+        function showScreen(name) {
+            Object.values($screens).forEach(s => s.classList.remove('active'));
+            $screens[name].classList.add('active');
+        }
 
-// ─── Start Simulation ───
-function startSimulation() {
-    showScreen('sim');
-    currentPhase = 0;
-    currentStep = 0;
-    renderStep();
-}
+        // ─── Start Simulation ───
+        function startSimulation() {
+            showScreen('sim');
+            currentPhase = 0;
+            currentStep = 0;
+            renderStep();
+        }
 
-// ─── Render Current Step ───
-function renderStep() {
-    const phase = PHASES[currentPhase];
-    const step = phase.steps[currentStep];
+        // ─── Render Current Step ───
+        function renderStep() {
+            const phase = PHASES[currentPhase];
+            const step = phase.steps[currentStep];
 
-    // Update workspace image
-    $workspaceImg.classList.add('loading');
-    $workspaceImg.src = step.image;
-    $workspaceImg.onload = () => $workspaceImg.classList.remove('loading');
+            // Stop any existing slideshow
+            stopSlideshow();
 
-    // Update notebook content
-    let content = step.content;
+            if (step.requiresSafety) {
+                safetyPassed = false;
+                const btnCheck = document.getElementById('btn-check-safety');
+                if (btnCheck) {
+                    btnCheck.classList.remove('completed');
+                    btnCheck.textContent = 'Verificar vestimenta';
+                }
+            }
 
-    // Materials placeholder
-    if (content === 'MATERIALS_PLACEHOLDER') {
-        content = renderMaterialsSection();
-    }
+            // Update workspace image(s)
+            const images = Array.isArray(step.image) ? step.image : [step.image];
+            loadWorkspaceImage(images[0]);
 
-    $notebookContent.innerHTML = content;
-    $notebookContent.scrollTop = 0;
+            // Start slideshow if multiple images
+            if (images.length > 1) {
+                startSlideshow(images);
+            } else {
+                $slideshowBar.innerHTML = '';
+            }
 
-    // Render sub-step progress bars
-    renderSubstepProgress();
+            // Update notebook content
+            let content = step.content;
 
-    // Update phase tracker
-    updatePhaseTracker();
+            // Materials placeholder
+            if (content === 'MATERIALS_PLACEHOLDER') {
+                content = renderMaterialsSection();
+            }
 
-    // Update next button
-    $btnNext.disabled = !step.canProceed;
-    if (step.isFinal) {
-        $btnNext.textContent = 'Completar Simulación ';
-        $btnNext.innerHTML = 'Completar Simulación <span class="btn-arrow">›</span>';
-    } else {
-        $btnNext.innerHTML = 'Siguiente sección <span class="btn-arrow">›</span>';
-    }
-}
+            $notebookContent.innerHTML = content;
+            $notebookContent.scrollTop = 0;
 
-// ─── Materials Section Content ───
-function renderMaterialsSection() {
-    let cards = IMG.materiales.map(m => `
+            // Lock action button until slideshow completes one cycle (multi-image steps only)
+            if (images.length > 1) {
+                const actionBtn = $notebookContent.querySelector('.btn-action');
+                if (actionBtn && !actionBtn.classList.contains('completed')) {
+                    actionBtn.disabled = true;
+                    actionBtn.classList.add('waiting-slideshow');
+                    actionBtn._originalHTML = actionBtn.innerHTML;
+                    actionBtn.innerHTML = '🔒 ' + actionBtn.textContent.replace(/^[^\s]+\s/, '');
+                }
+            }
+
+            // Render sub-step progress bars
+            renderSubstepProgress();
+
+            // Update phase tracker
+            updatePhaseTracker();
+
+            // Update next button
+            $btnNext.disabled = !step.canProceed;
+            if (step.isFinal) {
+                $btnNext.textContent = 'Completar Simulación ';
+                $btnNext.innerHTML = 'Completar Simulación <span class="btn-arrow">›</span>';
+            } else {
+                $btnNext.innerHTML = 'Siguiente sección <span class="btn-arrow">›</span>';
+            }
+
+            // Update back button
+            $btnPrev.disabled = (currentPhase === 0 && currentStep === 0);
+        }
+
+        // ─── Workspace Image Loading with Crossfade ───
+        function loadWorkspaceImage(src) {
+            // If there's no current image, load directly without crossfade
+            if (!$workspaceImg.src || $workspaceImg.src === window.location.href) {
+                $workspaceImg.src = src;
+                $workspaceImg.classList.add('active');
+                return;
+            }
+            // If same image, skip
+            if ($workspaceImg.src === src) return;
+
+            // Preload new image
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                $workspaceImgBg.src = src;
+                // Short delay to ensure browser has rendered the bg image
+                requestAnimationFrame(() => {
+                    $workspaceImgBg.classList.add('active');
+                    $workspaceImg.classList.remove('active');
+                    // After transition, swap roles
+                    setTimeout(() => {
+                        $workspaceImg.src = src;
+                        $workspaceImg.classList.add('active');
+                        $workspaceImgBg.classList.remove('active');
+                    }, 850);
+                });
+            };
+            tempImg.src = src;
+        }
+
+        // ─── Slideshow Logic ───
+        function startSlideshow(images) {
+            slideshowIndex = 0;
+            let cycleComplete = false;
+            renderSlideshowBar(images);
+
+            slideshowInterval = setInterval(() => {
+                slideshowIndex = (slideshowIndex + 1) % images.length;
+                loadWorkspaceImage(images[slideshowIndex]);
+                updateSlideshowBar(slideshowIndex, images.length);
+
+                // Unlock action button after one full cycle
+                if (slideshowIndex === 0 && !cycleComplete) {
+                    cycleComplete = true;
+                    const actionBtn = $notebookContent.querySelector('.btn-action.waiting-slideshow');
+                    if (actionBtn) {
+                        actionBtn.disabled = false;
+                        actionBtn.classList.remove('waiting-slideshow');
+                        if (actionBtn._originalHTML) {
+                            actionBtn.innerHTML = actionBtn._originalHTML;
+                        }
+                    }
+                }
+            }, 4000);
+        }
+
+        function stopSlideshow() {
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+                slideshowInterval = null;
+            }
+            slideshowIndex = 0;
+        }
+
+        function renderSlideshowBar(images) {
+            $slideshowBar.innerHTML = images.map((_, i) =>
+                `<span class="slideshow-seg${i === 0 ? ' current' : ''}"></span>`
+            ).join('');
+        }
+
+        function updateSlideshowBar(activeIndex, total) {
+            const segs = $slideshowBar.querySelectorAll('.slideshow-seg');
+            segs.forEach((seg, i) => {
+                seg.classList.remove('viewed', 'current');
+                if (i < activeIndex) seg.classList.add('viewed');
+                else if (i === activeIndex) seg.classList.add('current');
+            });
+        }
+
+        // ─── Materials Section Content ───
+        function renderMaterialsSection() {
+            let cards = IMG.materiales.map(m => `
         <div class="material-card">
             <img src="${m.src}" alt="${m.name}" loading="lazy">
             <span>${m.name}</span>
         </div>
     `).join('');
 
-    return `
+            return `
         <div class="nb-section-num">Sección 3</div>
         <h2 class="nb-section-title">Materiales</h2>
         <div class="nb-instructor">
@@ -1576,194 +2002,204 @@ function renderMaterialsSection() {
         </div>
         <div class="materials-grid">${cards}</div>
     `;
-}
-
-// ─── Sub-step Progress ───
-function renderSubstepProgress() {
-    const phase = PHASES[currentPhase];
-    const totalSteps = phase.steps.length;
-    if (totalSteps <= 1) return;
-
-    const progressId = phase.id + '-progress';
-    const $progress = document.getElementById(progressId);
-    if (!$progress) return;
-
-    let dots = '';
-    for (let i = 0; i < totalSteps; i++) {
-        let cls = '';
-        if (i < currentStep) cls = 'completed';
-        else if (i === currentStep) cls = 'active';
-        dots += `<div class="substep-dot ${cls}"></div>`;
-    }
-    $progress.innerHTML = dots;
-}
-
-// ─── Phase Tracker ───
-function updatePhaseTracker() {
-    $phaseItems.forEach((item, i) => {
-        item.classList.remove('active', 'completed');
-        if (i < currentPhase) item.classList.add('completed');
-        else if (i === currentPhase) item.classList.add('active');
-    });
-}
-
-// ─── Navigation ───
-function nextStep() {
-    const phase = PHASES[currentPhase];
-    const step = phase.steps[currentStep];
-
-    if (step.isFinal) {
-        showScreen('complete');
-        return;
-    }
-
-    if (currentStep < phase.steps.length - 1) {
-        currentStep++;
-    } else {
-        currentPhase++;
-        currentStep = 0;
-    }
-
-    renderStep();
-}
-
-function restartCurrentStep() {
-    renderStep();
-}
-
-// ─── Safety Quiz ───
-function toggleSafety(el) {
-    if (safetyPassed) return;
-    el.classList.toggle('selected');
-}
-
-function checkSafety() {
-    if (safetyPassed) return;
-    const options = document.querySelectorAll('.safety-option');
-    let allCorrect = true;
-
-    options.forEach(opt => {
-        const isCorrect = opt.dataset.correct === 'true';
-        const isSelected = opt.classList.contains('selected');
-
-        opt.classList.remove('selected', 'correct', 'incorrect');
-
-        if (isCorrect && isSelected) {
-            opt.classList.add('correct');
-        } else if (isCorrect && !isSelected) {
-            opt.classList.add('incorrect');
-            allCorrect = false;
-        } else if (!isCorrect && isSelected) {
-            opt.classList.add('incorrect');
-            allCorrect = false;
-        } else {
-            opt.classList.add('correct');
         }
-    });
 
-    const $feedback = document.getElementById('safety-feedback');
-    if (allCorrect) {
-        safetyPassed = true;
-        $feedback.innerHTML = '<div class="nb-success" style="margin-top:12px;">✅ ¡Correcto! Ya cumples con la vestimenta de seguridad. ¡Empecemos con la extracción!</div>';
-        document.getElementById('btn-check-safety').classList.add('completed');
-        document.getElementById('btn-check-safety').textContent = '✅ Vestimenta verificada';
-        $btnNext.disabled = false;
-    } else {
-        $feedback.innerHTML = '<div class="nb-note" style="margin-top:12px;">❌ Revisa tu selección. Debes seleccionar todos los elementos correctos de seguridad.</div>';
-        // Reset after delay
-        setTimeout(() => {
-            options.forEach(opt => {
-                opt.classList.remove('correct', 'incorrect');
+        // ─── Sub-step Progress ───
+        function renderSubstepProgress() {
+            const phase = PHASES[currentPhase];
+            const totalSteps = phase.steps.length;
+            if (totalSteps <= 1) return;
+
+            const progressId = phase.id + '-progress';
+            const $progress = document.getElementById(progressId);
+            if (!$progress) return;
+
+            let dots = '';
+            for (let i = 0; i < totalSteps; i++) {
+                let cls = '';
+                if (i < currentStep) cls = 'completed';
+                else if (i === currentStep) cls = 'active';
+                dots += `<div class="substep-dot ${cls}"></div>`;
+            }
+            $progress.innerHTML = dots;
+        }
+
+        // ─── Phase Tracker ───
+        function updatePhaseTracker() {
+            $phaseItems.forEach((item, i) => {
+                item.classList.remove('active', 'completed');
+                if (i < currentPhase) item.classList.add('completed');
+                else if (i === currentPhase) item.classList.add('active');
             });
-            $feedback.innerHTML = '';
-        }, 2500);
-    }
-}
+        }
 
-// ─── Action Buttons ───
-function completeAction(btn) {
-    btn.classList.add('completed');
-    btn.textContent = '✅ ' + btn.textContent.replace(/^[^\s]+\s/, '');
-    btn.onclick = null;
+        // ─── Navigation ───
+        function nextStep() {
+            const phase = PHASES[currentPhase];
+            const step = phase.steps[currentStep];
 
-    // Show any feedback divs that are siblings
-    const feedbacks = btn.parentElement.querySelectorAll('.nb-success[style*="display:none"]');
-    feedbacks.forEach(f => f.style.display = 'block');
+            if (step.isFinal) {
+                showScreen('complete');
+                return;
+            }
 
-    $btnNext.disabled = false;
-}
+            if (currentStep < phase.steps.length - 1) {
+                currentStep++;
+            } else {
+                currentPhase++;
+                currentStep = 0;
+            }
 
-// ─── Blend Timer ───
-function startBlendTimer(btn) {
-    btn.classList.add('completed');
-    btn.textContent = '✅ Licuadora encendida';
-    btn.onclick = null;
+            renderStep();
+        }
 
-    const $timer = document.getElementById('blend-timer');
-    $timer.style.display = 'block';
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+            } else if (currentPhase > 0) {
+                currentPhase--;
+                currentStep = PHASES[currentPhase].steps.length - 1;
+            }
+            renderStep();
+        }
 
-    let seconds = 8; // Shortened for simulation
-    const $countdown = document.getElementById('blend-countdown');
+        function restartCurrentStep() {
+            renderStep();
+        }
 
-    const interval = setInterval(() => {
-        seconds--;
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        $countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        // ─── Safety Quiz ───
+        function toggleSafety(el) {
+            if (safetyPassed) return;
+            el.classList.toggle('selected');
+        }
 
-        if (seconds <= 0) {
-            clearInterval(interval);
-            $countdown.textContent = '✅ ¡Listo!';
-            $countdown.style.color = '#66bb6a';
+        function checkSafety() {
+            if (safetyPassed) return;
+            const options = document.querySelectorAll('.safety-option');
+            let allCorrect = true;
+
+            options.forEach(opt => {
+                const isCorrect = opt.dataset.correct === 'true';
+                const isSelected = opt.classList.contains('selected');
+
+                opt.classList.remove('selected', 'correct', 'incorrect');
+
+                if (isCorrect && isSelected) {
+                    opt.classList.add('correct');
+                } else if (!isCorrect) {
+                    opt.classList.add('incorrect');
+                    if (isSelected) allCorrect = false;
+                } else {
+                    opt.classList.add('missed');
+                    allCorrect = false;
+                }
+            });
+
+            const $feedback = document.getElementById('safety-feedback');
+            if (allCorrect) {
+                safetyPassed = true;
+                $feedback.innerHTML = '<div class="nb-success" style="margin-top:12px;">✅ ¡Correcto! Ya cumples con la vestimenta de seguridad. ¡Empecemos con la extracción!</div>';
+                document.getElementById('btn-check-safety').classList.add('completed');
+                document.getElementById('btn-check-safety').textContent = '✅ Vestimenta verificada';
+                $btnNext.disabled = false;
+            } else {
+                $feedback.innerHTML = '<div class="nb-note" style="margin-top:12px;">❌ Revisa tu selección. Debes seleccionar todos los elementos correctos de seguridad.</div>';
+                // Reset after delay
+                setTimeout(() => {
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+                    $feedback.innerHTML = '';
+                }, 2500);
+            }
+        }
+
+        // ─── Action Buttons ───
+        function completeAction(btn) {
+            btn.classList.add('completed');
+            btn.textContent = '✅ ' + btn.textContent.replace(/^[^\s]+\s/, '');
+            btn.onclick = null;
+
+            // Show any feedback divs that are siblings
+            const feedbacks = btn.parentElement.querySelectorAll('.nb-success[style*="display:none"]');
+            feedbacks.forEach(f => f.style.display = 'block');
+
             $btnNext.disabled = false;
         }
-    }, 1000);
-}
 
-// ─── Rest Timer ───
-function startRestTimer(btn) {
-    btn.classList.add('completed');
-    btn.textContent = '✅ Tiempo de reposo iniciado';
-    btn.onclick = null;
+        // ─── Blend Timer ───
+        function startBlendTimer(btn) {
+            btn.classList.add('completed');
+            btn.textContent = '✅ Licuadora encendida';
+            btn.onclick = null;
 
-    const $timer = document.getElementById('rest-timer');
-    $timer.style.display = 'block';
+            const $timer = document.getElementById('blend-timer');
+            $timer.style.display = 'block';
 
-    let seconds = 10; // Shortened for simulation
-    const $countdown = document.getElementById('rest-countdown');
+            let seconds = 8; // Shortened for simulation
+            const $countdown = document.getElementById('blend-countdown');
 
-    const interval = setInterval(() => {
-        seconds--;
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        $countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            const interval = setInterval(() => {
+                seconds--;
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                $countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
-        if (seconds <= 0) {
-            clearInterval(interval);
-            $countdown.textContent = '✅ ¡Listo!';
-            $countdown.style.color = '#66bb6a';
-            $btnNext.disabled = false;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    $countdown.textContent = '✅ ¡Listo!';
+                    $countdown.style.color = '#66bb6a';
+                    $btnNext.disabled = false;
+                }
+            }, 1000);
         }
-    }, 1000);
-}
 
-// ─── Materials Modal ───
-function openMaterialsModal() {
-    document.getElementById('materials-modal').classList.remove('hidden');
-}
+        // ─── Rest Timer ───
+        function startRestTimer(btn) {
+            btn.classList.add('completed');
+            btn.textContent = '✅ Tiempo de reposo iniciado';
+            btn.onclick = null;
 
-function closeMaterialsModal() {
-    document.getElementById('materials-modal').classList.add('hidden');
-}
+            const $timer = document.getElementById('rest-timer');
+            $timer.style.display = 'block';
 
-// ─── Reset ───
-function resetSimulation() {
-    currentPhase = 0;
-    currentStep = 0;
-    safetyPassed = false;
-    showScreen('welcome');
-}
+            let seconds = 10; // Shortened for simulation
+            const $countdown = document.getElementById('rest-countdown');
 
-</script>
+            const interval = setInterval(() => {
+                seconds--;
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                $countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    $countdown.textContent = '✅ ¡Listo!';
+                    $countdown.style.color = '#66bb6a';
+                    $btnNext.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // ─── Materials Modal ───
+        function openMaterialsModal() {
+            document.getElementById('materials-modal').classList.remove('hidden');
+        }
+
+        function closeMaterialsModal() {
+            document.getElementById('materials-modal').classList.add('hidden');
+        }
+
+        // ─── Reset ───
+        function resetSimulation() {
+            stopSlideshow();
+            currentPhase = 0;
+            currentStep = 0;
+            safetyPassed = false;
+            showScreen('welcome');
+        }
+
+    </script>
 </body>
+
 </html>
