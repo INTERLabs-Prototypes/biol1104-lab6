@@ -1096,18 +1096,17 @@
 
             #notebook-nav {
                 margin-right: 0;
-                gap: 10px;
-                padding: 10px 14px;
+                gap: 12px;
+                padding: 10px 16px;
             }
 
-            #notebook-nav .btn-primary {
-                padding: 10px 16px;
-                font-size: 12px;
-            }
-
-            .btn-back-nav {
-                padding: 10px 16px;
-                font-size: 12px;
+            #notebook-nav .btn-primary,
+            #notebook-nav .btn-back-nav {
+                flex: 1;
+                justify-content: center;
+                padding: 12px 12px;
+                font-size: 13px;
+                min-width: 0;
             }
 
             .safety-grid {
@@ -1116,6 +1115,99 @@
 
             .materials-grid {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .sim-layout {
+                flex-direction: row;
+            }
+
+            #workspace {
+                width: 45%;
+                height: 100%;
+            }
+
+            #notebook {
+                width: 55%;
+                height: 100%;
+            }
+
+            #phase-tracker {
+                flex-direction: column;
+                width: 50px;
+                height: auto;
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 48px;
+            }
+
+            .phase-item {
+                flex-direction: column;
+                padding: 6px 4px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                border-right: none;
+            }
+
+            .phase-item::before {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 3px;
+                height: auto;
+                right: auto;
+            }
+
+            .phase-label {
+                display: none;
+            }
+
+            .phase-num {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+                margin-bottom: 0;
+            }
+
+            #notebook-content {
+                margin-right: 50px;
+                padding: 10px 14px;
+            }
+
+            #notebook-nav {
+                margin-right: 50px;
+                gap: 10px;
+                padding: 6px 14px;
+            }
+
+            #notebook-nav .btn-primary,
+            #notebook-nav .btn-back-nav {
+                flex: 1;
+                justify-content: center;
+                padding: 8px 10px;
+                font-size: 11px;
+                min-width: 0;
+            }
+
+            .nb-section-title {
+                font-size: 17px;
+                margin-bottom: 2px;
+            }
+
+            .nb-section-num {
+                font-size: 10px;
+                margin-bottom: 2px;
+            }
+
+            .nb-section-title::after {
+                margin-top: 6px;
+            }
+
+            .ws-btn {
+                font-size: 10px;
+                padding: 5px 10px;
             }
         }
     </style>
